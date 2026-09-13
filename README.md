@@ -22,16 +22,9 @@ The primary goal is to minimize the amount of time students spend waiting betwee
 - Calculates total idle time between classes
 - Scores and ranks conflict-free schedules
 
-## Planned Features
+## Web app
 
-- Support preferences such as:
-  - Minimize time between classes
-  - Prefer days off
-  - Avoid early classes
-  - Avoid late classes
-  - Minimize campus travel
-- Display the best schedules in a web interface
-- Allow students to customize optimization priorities
+The React interface is live at [cowboy-compass.vercel.app](https://cowboy-compass.vercel.app/). It lets students enter courses, request schedules, review the top ten ranked options, copy CRNs, and open instructor names in Rate My Professors.
 
 ## How It Works
 
@@ -51,41 +44,48 @@ Schedule Generation
 Schedule Scoring
        ↓
 Ranked Schedules
+```
 
-The scheduling engine will treat requirements such as course availability and schedule conflicts as hard constraints, while preferences such as minimizing gaps between classes will be used to rank valid schedules.
-Data
+The scheduling engine treats course availability and schedule conflicts as hard constraints. Preferences such as minimizing gaps and class days influence the ranking of valid schedules.
+
+## Data
+
 Course data is retrieved from Oklahoma State University's public class registration system.
-Generated course-data JSON files are intentionally excluded from this repository because they are large and can become outdated. The project is designed to process current registration data rather than rely on permanently stored course data.
-Tech Stack
-- Python 3.14.7 (latest stable Python 3 release)
-- REST APIs
-- JSON
-- Data Processing
-- Git / GitHub
-Planned:
-- FastAPI
-- PostgreSQL
-- React / Next.js
-- Docker
-- Automated testing
-- CI/CD
+Generated course-data JSON files are intentionally excluded from this repository because they are large and can become outdated. Render downloads current data during its build instead.
 
-The reusable scheduling logic lives in `scheduler.py`. The terminal program and future web interface can both import it.
-Project Status
-🚧 In Development
-The current focus is building and testing the scheduling engine before developing the graphical interface.
-Running the Project
+## Tech stack
+
+- Python 3.14
+- React 19 and Vite
+- REST API with Python's standard library HTTP server
+- JSON data processing
+- Git and GitHub
+- Vercel (frontend) and Render (API hosting)
+
+The reusable scheduling logic lives in `scheduler.py`; both the terminal program and API import it.
+
+## Project status
+
+The scheduling engine and first React web app are working. Spring 2027 data and additional preference controls are planned next.
+
+## Running locally
+
 Clone the repository:
+```bash
 git clone https://github.com/jackhildebrand/Cowboy-Compass.git
 cd Cowboy-Compass
-Install the dependency and run the Python program with Python 3.14:
+```
+
+Install the dependency and run the terminal program with Python 3.14:
+```bash
 python3.14 -m pip install requests
 python3.14 OSU_Class_Optimizer.py
 python3.14 -m unittest discover -s tests -v
+```
 
-## React Web App
+### React web app
 
-The React interface lives in `web/` and connects to the local Python scheduling API. Run the API in one terminal, then start the web app in another:
+The React interface in `web/` connects to the local Python scheduling API. Run the API in one terminal, then start Vite in another:
 
 ```bash
 # Terminal 1, from the project root
@@ -99,16 +99,24 @@ pnpm dev
 
 Open the local web address printed by Vite, add courses, and choose **Find schedules**. The browser sends the requested course list to Python, and the returned conflict-free schedules replace the sample results.
 
-## Deploying with Vercel and Render
+## Deployment
 
 The repository includes `render.yaml` for the Python API and `web/vercel.json` for the React site.
 
-1. Create a Render **Web Service** from this repository. Render will use `render.yaml`; copy the API URL after the service deploys.
+The production frontend is deployed on Vercel and the Python API is deployed on Render:
+
+- Frontend: [cowboy-compass.vercel.app](https://cowboy-compass.vercel.app/)
+- API health check: [cowboy-compass.onrender.com/health](https://cowboy-compass.onrender.com/health)
+
+To reproduce the deployment:
+
+1. Create a Render **Web Service** from this repository. Render uses `render.yaml`; copy the API URL after the service deploys.
 2. Create a Vercel project from this repository and set its **Root Directory** to `web`.
 3. In Vercel, add `VITE_API_URL` with the Render URL ending in `/api/schedules`.
 4. In Render, set `ALLOWED_ORIGIN` to the deployed Vercel URL and redeploy the API.
 
-The API listens on Render's `PORT` environment variable and exposes `/health` so the service can be checked automatically. During its build, Render runs `prepare_render_data.py` to download the current OSU sections; the generated JSON stays on the service and is not committed to Git.
-Future Vision
-Cowboy Compass is intended to become a full scheduling platform that allows Oklahoma State students to enter their desired courses and preferences and receive several optimized schedules to choose from.
-The long-term goal is to make schedule planning faster, more flexible, and more intelligent than manually comparing hundreds of course sections.
+The API listens on Render's `PORT` environment variable and exposes `/health` for automatic service checks. During its build, Render runs `prepare_render_data.py` to download current OSU sections; generated JSON remains on the service and is never committed.
+
+## Future direction
+
+Planned improvements include Spring 2027 support, customizable ranking preferences, and additional travel-aware scheduling options.

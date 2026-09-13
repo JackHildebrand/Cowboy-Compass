@@ -78,6 +78,7 @@ The current focus is building and testing the scheduling engine before developin
 Clone the repository:
 
 ```bash git clone https://github.com/jackhildebrand/Cowboy-Compass.git```
+
 ```bash cd Cowboy-Compass```
 
 Run the Python program:

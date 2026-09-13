@@ -17,12 +17,13 @@ The primary goal is to minimize the amount of time students spend waiting betwee
 - Handles multiple meeting times within a course section
 - Converts OSU's time format into usable scheduling data
 - Identifies potential schedule conflicts
+- Generates every one-section-per-course schedule
+- Removes schedules with overlapping meeting times
+- Calculates total idle time between classes
+- Scores and ranks conflict-free schedules
 
 ## Planned Features
 
-- Generate valid schedules from a list of required courses
-- Minimize gaps between classes
-- Rank schedules based on user preferences
 - Support preferences such as:
   - Minimize time between classes
   - Prefer days off
@@ -36,6 +37,7 @@ The primary goal is to minimize the amount of time students spend waiting betwee
 
 Cowboy Compass is being developed as a constraint-based scheduling system.
 
+```text
 OSU Course Data
        ↓
 Data Processing
@@ -51,13 +53,11 @@ Schedule Scoring
 Ranked Schedules
 
 The scheduling engine will treat requirements such as course availability and schedule conflicts as hard constraints, while preferences such as minimizing gaps between classes will be used to rank valid schedules.
-
-## Data
+Data
 Course data is retrieved from Oklahoma State University's public class registration system.
 Generated course-data JSON files are intentionally excluded from this repository because they are large and can become outdated. The project is designed to process current registration data rather than rely on permanently stored course data.
-
-## Tech Stack
-- Python
+Tech Stack
+- Python 3.14.7 (latest stable Python 3 release)
 - REST APIs
 - JSON
 - Data Processing
@@ -70,28 +70,45 @@ Planned:
 - Automated testing
 - CI/CD
 
-## Project Status
+The reusable scheduling logic lives in `scheduler.py`. The terminal program and future web interface can both import it.
+Project Status
 🚧 In Development
-
 The current focus is building and testing the scheduling engine before developing the graphical interface.
-
-## Running the Project
+Running the Project
 Clone the repository:
+git clone https://github.com/jackhildebrand/Cowboy-Compass.git
+cd Cowboy-Compass
+Install the dependency and run the Python program with Python 3.14:
+python3.14 -m pip install requests
+python3.14 OSU_Class_Optimizer.py
+python3.14 -m unittest discover -s tests -v
 
-```bash 
-  git clone https://github.com/jackhildebrand/Cowboy-Compass.git
+## React Web App
+
+The React interface lives in `web/` and connects to the local Python scheduling API. Run the API in one terminal, then start the web app in another:
+
+```bash
+# Terminal 1, from the project root
+python3 api.py
+
+# Terminal 2
+cd web
+pnpm install
+pnpm dev
 ```
 
-```bash 
-  cd Cowboy-Compass
-```
+Open the local web address printed by Vite, add courses, and choose **Find schedules**. The browser sends the requested course list to Python, and the returned conflict-free schedules replace the sample results.
 
-Run the Python program:
+## Deploying with Vercel and Render
 
-```bash 
-python3 OSU_Class_Optimizer.py
-```
+The repository includes `render.yaml` for the Python API and `web/vercel.json` for the React site.
 
-## Future Vision
+1. Create a Render **Web Service** from this repository. Render will use `render.yaml`; copy the API URL after the service deploys.
+2. Create a Vercel project from this repository and set its **Root Directory** to `web`.
+3. In Vercel, add `VITE_API_URL` with the Render URL ending in `/api/schedules`.
+4. In Render, set `ALLOWED_ORIGIN` to the deployed Vercel URL and redeploy the API.
+
+The API listens on Render's `PORT` environment variable and exposes `/health` so the service can be checked automatically. During its build, Render runs `prepare_render_data.py` to download the current OSU sections; the generated JSON stays on the service and is not committed to Git.
+Future Vision
 Cowboy Compass is intended to become a full scheduling platform that allows Oklahoma State students to enter their desired courses and preferences and receive several optimized schedules to choose from.
 The long-term goal is to make schedule planning faster, more flexible, and more intelligent than manually comparing hundreds of course sections.

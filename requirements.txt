@@ -1,0 +1,2 @@
+# Used by the OSU course-data downloader.
+requests>=2.32,<3

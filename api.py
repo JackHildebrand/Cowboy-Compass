@@ -23,7 +23,7 @@ from scheduler import (
 )
 
 
-HOST = os.environ.get("HOST", "127.0.0.1")
+HOST = os.environ.get("HOST", "0.0.0.0")
 PORT = int(os.environ.get("PORT", "8000"))
 ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN", "http://localhost:5173")
 DATA_PATH = Path(__file__).with_name("fall_2026_sections.json")

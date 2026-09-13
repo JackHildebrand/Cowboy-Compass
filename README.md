@@ -76,10 +76,13 @@ The current focus is building and testing the scheduling engine before developin
 
 ## Running the Project
 Clone the repository:
-```git clone https://github.com/jackhildebrand/Cowboy-Compass.git```
-```cd Cowboy-Compass```
+
+```bash git clone https://github.com/jackhildebrand/Cowboy-Compass.git```
+```bash cd Cowboy-Compass```
+
 Run the Python program:
-```python3 OSU_Class_Optimizer.py```
+
+```bash python3 OSU_Class_Optimizer.py```
 
 ## Future Vision
 Cowboy Compass is intended to become a full scheduling platform that allows Oklahoma State students to enter their desired courses and preferences and receive several optimized schedules to choose from.

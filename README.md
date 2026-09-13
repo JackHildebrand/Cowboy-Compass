@@ -24,7 +24,7 @@ The primary goal is to minimize the amount of time students spend waiting betwee
 
 ## Web app
 
-The React interface is live at [cowboy-compass.vercel.app](https://cowboy-compass.vercel.app/). It lets students enter courses, request schedules, review the top ten ranked options, copy CRNs, and open instructor names in Rate My Professors.
+The React interface is live at [cowboycompass.vercel.app](https://cowboycompass.vercel.app/). It lets students enter courses, request schedules, review the top ten ranked options, copy CRNs, and open instructor names in Rate My Professors.
 
 ## How It Works
 
@@ -105,7 +105,7 @@ The repository includes `render.yaml` for the Python API and `web/vercel.json` f
 
 The production frontend is deployed on Vercel and the Python API is deployed on Render:
 
-- Frontend: [cowboy-compass.vercel.app](https://cowboy-compass.vercel.app/)
+- Frontend: [cowboycompass.vercel.app](https://cowboycompass.vercel.app/)
 - API health check: [cowboy-compass.onrender.com/health](https://cowboy-compass.onrender.com/health)
 
 To reproduce the deployment:

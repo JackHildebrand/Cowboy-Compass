@@ -72,6 +72,7 @@ Planned:
 
 ## Project Status
 🚧 In Development
+
 The current focus is building and testing the scheduling engine before developing the graphical interface.
 
 ## Running the Project

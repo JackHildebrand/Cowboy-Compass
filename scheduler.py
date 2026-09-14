@@ -12,7 +12,7 @@ DAY_LABELS = (
     ("thursday", "R"),
     ("friday", "F"),
 )
-CLASS_DAY_PENALTY = 30
+CLASS_DAY_PENALTY = 180
 CAMPUS = "Stillwater"
 EXCLUDED_SCHEDULE_TYPES = {"LAB"}
 MEETING_TYPE_NAMES = {"01": "lecture", "02": "lab"}
@@ -212,4 +212,3 @@ def rank_schedules(
 ) -> list[tuple[dict, ...]]:
     """Return schedules ordered from lowest score to highest score."""
     return sorted(schedules, key=score_schedule)
-

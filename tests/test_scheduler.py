@@ -1,4 +1,5 @@
 import unittest
+from itertools import permutations
 
 from scheduler import (
     build_course_options,
@@ -7,6 +8,7 @@ from scheduler import (
     rank_schedules,
     remove_conflicting_schedules,
     score_schedule,
+    sections_conflict,
 )
 
 
@@ -41,6 +43,70 @@ class SchedulerTests(unittest.TestCase):
         back_to_back = section("MATH2143", "C", [meeting("1000", "1050", monday=True)])
         schedules = remove_conflicting_schedules([(first, overlap), (first, back_to_back)])
         self.assertEqual(schedules, [(first, back_to_back)])
+
+    def test_multi_meeting_conflict_is_independent_of_meeting_and_section_order(self):
+        first_meetings = [
+            meeting("0900", "1000", monday=True),
+            meeting("1300", "1400", tuesday=True),
+        ]
+        second_meetings = [
+            meeting("1100", "1200", wednesday=True),
+            meeting("1330", "1430", tuesday=True),
+        ]
+        for first_order in permutations(first_meetings):
+            for second_order in permutations(second_meetings):
+                first = section("CS1113", "A", first_order)
+                second = section("MATH2143", "B", second_order)
+                for pair in ((first, second), (second, first)):
+                    with self.subTest(pair=pair):
+                        self.assertTrue(sections_conflict(*pair))
+                        self.assertEqual(remove_conflicting_schedules([pair]), [])
+
+    def test_later_meeting_edge_cases(self):
+        first = section("CS1113", "A", [
+            meeting("0900", "1000", monday=True),
+            meeting("1300", "1400", tuesday=True),
+        ])
+        cases = [
+            ("overlap", meeting("1330", "1430", tuesday=True), True),
+            ("identical", meeting("1300", "1400", tuesday=True), True),
+            ("contained", meeting("1310", "1350", tuesday=True), True),
+            ("contains", meeting("1200", "1500", tuesday=True), True),
+            ("touches_before", meeting("1200", "1300", tuesday=True), False),
+            ("touches_after", meeting("1400", "1500", tuesday=True), False),
+            ("different_day", meeting("1330", "1430", wednesday=True), False),
+            ("missing_time", meeting(None, "1430", tuesday=True), False),
+            ("invalid_time", meeting("bad", "1430", tuesday=True), False),
+            ("exam_code", meeting("1330", "1430", tuesday=True, meetingType="EXCE"), False),
+            ("exam_description", meeting("1330", "1430", tuesday=True, meetingTypeDescription="Common Exam"), False),
+        ]
+        for name, other_meeting, expected in cases:
+            second = section("MATH2143", "B", [other_meeting])
+            for pair in ((first, second), (second, first)):
+                with self.subTest(case=name, pair=pair):
+                    self.assertEqual(sections_conflict(*pair), expected)
+
+    def test_empty_or_exam_only_sections_do_not_conflict(self):
+        first = section("CS1113", "A", [meeting("0900", "1000", monday=True)])
+        for meetings in ([], None, [meeting("0900", "1000", monday=True, meetingType="EXCE")]):
+            second = {"meetingsFaculty": meetings}
+            for pair in ((first, second), (second, first)):
+                with self.subTest(pair=pair):
+                    self.assertFalse(sections_conflict(*pair))
+
+    def test_generated_schedules_remove_later_meeting_conflicts_in_any_course_order(self):
+        first = section("CS1113", "A", [
+            meeting("0900", "1000", monday=True),
+            meeting("1300", "1400", tuesday=True),
+        ])
+        overlap = section("MATH2143", "B", [meeting("1330", "1430", tuesday=True)])
+        adjacent = section("MATH2143", "C", [meeting("1400", "1500", tuesday=True)])
+        unrelated = section("HIST1103", "D", [meeting("0900", "1000", friday=True)])
+        for options in permutations(([first], [overlap, adjacent], [unrelated])):
+            with self.subTest(options=options):
+                schedules = generate_schedules(options)
+                expected = [schedule for schedule in schedules if adjacent in schedule]
+                self.assertEqual(remove_conflicting_schedules(schedules), expected)
 
     def test_gap_does_not_cross_weekdays(self):
         monday = section("CS1113", "A", [meeting("0900", "1000", monday=True)])

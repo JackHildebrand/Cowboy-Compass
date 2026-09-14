@@ -131,7 +131,8 @@ def meeting_times_overlap(first: dict, second: dict) -> bool:
 def sections_conflict(first: dict, second: dict) -> bool:
     """Return whether any meeting in two sections overlaps."""
     first_meetings = instructional_meetings(first)
-    second_meetings = instructional_meetings(second)
+    # Reuse the inner meetings for every meeting in the first section.
+    second_meetings = tuple(instructional_meetings(second))
     return any(
         meeting_times_overlap(first_meeting, second_meeting)
         for first_meeting in first_meetings
